@@ -47,29 +47,122 @@
       if(!dataIsOk){
         return;
       }
+      loadData(renderPage)
+    })
+
+    function loadData(callback){
+      ajax({
+        url: '/loadMore',
+        type: 'get',
+        data: {
+          index: index,
+          length: 5,
+        },
+        success:callback
+        ,
+        error: function () {
+          console.log('error')
+        },
+      })
+    }
+
+
+    function renderPage(rst){
+      var fragment = document.createDocumentFragment();
+      for(var i = 0;i <rst.length;i++){
+        var news = document.createElement('li');
+        news.innerText = rst[i];
+        fragment.appendChild(news);
+      }
+      ul.appendChild(fragment);
+      index +=5;
+    }
+
+    function ajax(options){
       var xhr = new XMLHttpRequest();
-      xhr.onreadystatechange = function () {
+      xhr.onreadystatechange = function(){
         if(xhr.readyState === 4){
-          if((xhr.status === 200||xhr.status ===304)){
-            var results = JSON.parse(xhr.responseText);
-            console.log(results)
-            var fragment = document.createDocumentFragment();
-            for(var i = 0;i <results.length;i++){
-              var news = document.createElement('li');
-              news.innerText = results[i];
-              fragment.appendChild(news);
-            }
-            ul.appendChild(fragment);
-            index +=5;
+          if(xhr.status === 200 || xhr.status ===304){
+            var result = JSON.parse(xhr.responseText)
+            options.success(result)
           }
-          else(alert('服务器爆炸了'))
+          else{
+            options.error()
+          }
         }
         dataIsOk = true;
       }
-      xhr.open('get','loadMore?index='+index+'&length=5',true);
-      xhr.send();
+      var query = '?'
+      for(key in options.data){
+        query += key + '=' + options.data[key] + '&'
+      }
+      query = query.substr(0,query.length-1)
+      var url = options.url +query
+      xhr.open(options.type,url,true)
+      xhr.send()
       dataIsOk = false;
-    })
+    }
+
+    //    function loadData(callback){
+    //      var xhr = new XMLHttpRequest();
+    //      xhr.onreadystatechange = function () {
+    //        if(xhr.readyState === 4){
+    //          if((xhr.status === 200||xhr.status ===304)){
+    //            var results = JSON.parse(xhr.responseText);
+    //            callback(results)
+    //          }
+    //          else(alert('服务器爆炸了'))
+    //        }
+    //        dataIsOk = true;
+    //      }
+    //      xhr.open('get','loadMore?index='+index+'&length=5',true);
+    //      xhr.send();
+    //      dataIsOk = false;
+    //    }
+
+
+
+
+
+
+
+
+
+//    var btn = document.querySelector('#btn');
+//    var ul = document.querySelector('ul');
+//    var index = 3;
+//    var dataIsOk = true;
+//    btn.addEventListener('click',function (e) {
+//      e.preventDefault();
+//      if(!dataIsOk){
+//        return;
+//      }
+//      var xhr = new XMLHttpRequest();
+//      xhr.onreadystatechange = function () {
+//        if(xhr.readyState === 4){
+//          if((xhr.status === 200||xhr.status ===304)){
+//            var results = JSON.parse(xhr.responseText);
+//            console.log(results)
+//            var fragment = document.createDocumentFragment();
+//            for(var i = 0;i <results.length;i++){
+//              var news = document.createElement('li');
+//              news.innerText = results[i];
+//              fragment.appendChild(news);
+//            }
+//            ul.appendChild(fragment);
+//            index +=5;
+//          }
+//          else(alert('服务器爆炸了'))
+//        }
+//        dataIsOk = true;
+//      }
+//      xhr.open('get','loadMore?index='+index+'&length=5',true);
+//      xhr.send();
+//      dataIsOk = false;
+//    })
+
+
+
 </script>
 </body>
 </html>
